@@ -62,5 +62,11 @@ public class LogDAOImpl implements LogDAO {
 		query.executeUpdate();
 		
 	}
-	
+
+	public long getNotExpiredLogByUserId(long userId) {
+		Query query = entityManager.createQuery("SELECT COUNT(l) FROM Log l WHERE l.expired = false AND l.userId = :userId")
+				.setParameter("userId", userId);
+		return (Long)query.getSingleResult();
+	}
+
 }

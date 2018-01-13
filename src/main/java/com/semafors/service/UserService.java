@@ -2,6 +2,7 @@ package com.semafors.service;
 
 import java.util.List;
 
+import com.semafors.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +28,14 @@ public class UserService {
 		return userDao.getActiveUsers();
 	}
 	
-	public void logout(String login) {
-		User user = userDao.getByLogin(login);
+	public void logout(String login) throws Exception{
+		User user;
+		try {
+			user = userDao.getByLogin(login);
+		}
+		catch (Exception e){
+			throw new UserNotFoundException();
+		}
 		logDao.logoutUser(user.getId(), System.currentTimeMillis());
 	}
 }

@@ -13,4 +13,5 @@ public interface LogDAO {
 	public List<Log> getAllByUser(long userId);
 	public long getNumberOfActiveLogs();
 	public void logoutUser(long userId, long time);
+	public long getNotExpiredLogByUserId(long userId);
 }

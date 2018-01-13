@@ -9,6 +9,8 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
+import com.semafors.exceptions.UserAlreadyLoggedException;
+import com.semafors.exceptions.UserNotFoundException;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
@@ -75,14 +77,29 @@ public class LogController {
     }
 	
 	@PostMapping("login")
-	public long login(@RequestParam("uploadingFiles") MultipartFile[] uploadingFiles, @RequestParam("login") String login, @RequestParam("password") String password) throws Exception {
-		long loginId = logService.login(login, password, uploadingFiles);
-		return loginId;
+	public ResponseEntity<Long> login(@RequestParam("uploadingFile") MultipartFile uploadingFile, @RequestParam("login") String login, @RequestParam("password") String password) throws Exception {
+		long loginId;
+		try{
+			loginId = logService.login(login, password, uploadingFile);
+		}
+		catch (UserNotFoundException e){
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+		catch (UserAlreadyLoggedException e){
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
+		return new ResponseEntity<>(loginId,HttpStatus.OK);
 	}
 	
 	@PostMapping("logout")
-	public void logout(@RequestParam("login") String login) {
-		userService.logout(login);
+	public ResponseEntity logout(@RequestParam("login") String login) throws Exception{
+		try{
+			userService.logout(login);
+		}
+		catch (UserNotFoundException e){
+			return new ResponseEntity(HttpStatus.LOCKED);
+		}
+		return new ResponseEntity(HttpStatus.OK);
 	}
 	
 	@RequestMapping("/images/{id}")
